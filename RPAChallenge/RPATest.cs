@@ -6,11 +6,11 @@ namespace RPAChallenge
 {
     public class Tests
     {
-        //переменная для взаимодействия с браузером
+        //variable for interacting with browser
         private IWebDriver driver;
 
-        //переменные, содержащие веб-элементы для поиска на странице
-        //поля ввода
+        //variables containing web elements to search on the page
+        //input fields
         private readonly By _firstName= By.XPath("//input[@ng-reflect-name='labelFirstName']");
         private readonly By _lastName = By.XPath("//input[@ng-reflect-name='labelLastName']");
         private readonly By _companyName = By.XPath("//input[@ng-reflect-name='labelCompanyName']");
@@ -19,28 +19,28 @@ namespace RPAChallenge
         private readonly By _email = By.XPath("//input[@ng-reflect-name='labelEmail']");
         private readonly By _roleInCompany = By.XPath("//input[@ng-reflect-name='labelRole']");
 
-        //кнопки
+        //buttons
         private readonly By _startButton = By.XPath("//button[@class='waves-effect col s12 m12 l12 btn-large uiColorButton']");
         private readonly By _submitButton = By.XPath("//input[@class='btn uiColorButton']");
 
         private static ArrayList ExcelFileReader()
         {
-            //смена кодировки
+            //change encoding
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             ArrayList excelData = new();
-            //открытие Excel файла для чтения данных
+            //opening excel file to read data
             FileStream stream = File.Open("challenge.xlsx", FileMode.Open, FileAccess.Read);
             IExcelDataReader reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
             DataSet result = reader.AsDataSet();
             var tables = result.Tables.Cast<DataTable>();
-            //чтение из файла и запись в ArrayList
+            //reading from file and writing to ArrayList
             foreach (DataTable table in tables)
             {
                 int k = 0;
                 foreach (DataRow r in table.Rows)
                 {
-                    //Не записываем названия столбцов
+                    //don't write column names
                     if (k == 0)
                     {
                         k++;
@@ -53,12 +53,12 @@ namespace RPAChallenge
                     }
                 }
             }
-            //закрытие файла 
+            //closing Excel file
             reader.Close();
             return excelData;
         }
-           
-        //Открытие браузера на полный экран и переход на сайт
+
+        //opening the browser in full screen and going to the site
         [SetUp]
         public void Setup()
         {
@@ -70,16 +70,17 @@ namespace RPAChallenge
         [Test]
         public void Test1()
         {
-            //Кнопка для начала раундов
+            //button to start rounds
             var start = driver.FindElement(_startButton);
             start.Click();
 
-            //Возвращаем ArrayList из функции чтения Excel
+            //get ArrayList from Excel read function
             ArrayList data = ExcelFileReader();
 
-            //Вспомогательная переменная для перехода к следующей строке(следующему сотруднику)
+            //additional variable for moving to the next line (next employee)
             int k = 0;
-            //Начинаем раунды заполнения информации
+
+            //start rounds of filling in information
             for (var i = 0; i < 10; i++)
             {
                 //Thread.Sleep(1000);
@@ -110,17 +111,17 @@ namespace RPAChallenge
                 var roleInCompany = driver.FindElement(_roleInCompany);
                 roleInCompany.SendKeys((string)data[3 + k]);
 
-                //Переход на новую строку(к данным для следующего раунда)
+                //jump to a new line (to the data for the next round)
                 k += 7;
 
-                //Кнопка для перехода к следующему раунду
+                //button to go to the next round
                 //Thread.Sleep(1000);
                 var submit = driver.FindElement(_submitButton);
                 submit.Click();
             }
         }
 
-        //Закрытие браузера с задержкой для просмотра результата
+        //closing the browser with a delay to view the result
         [TearDown]
         public void TearDown()
         {
